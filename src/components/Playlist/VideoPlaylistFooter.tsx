@@ -1,15 +1,17 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { selectVideoPlaylist } from '@100mslive/hms-video-store';
 import { useHMSTheme } from '../../hooks/HMSThemeProvider';
 import { hmsUiClassParserGenerator } from '../../utils/classes';
-import { CloseIcon, PlaylistIcon } from '../Icons';
+import { CloseIcon, PlaylistIcon, UploadIcon } from '../Icons';
 import { Text } from '../Text';
 import { useHMSActions, useHMSStore } from '../../hooks/HMSRoomProvider';
 import { Button } from '../Button';
 import { ContextMenu, ContextMenuItem } from '../ContextMenu';
 import { PlaylistItem } from './PlaylistItem';
+// import { VideoPlaylistClasses } from './VideoPlaylist';
 
-export interface VideoPlaylistClasses {
+
+export interface VideoPlaylistFooterClasses {
   root?: string;
   header?: string;
   body?: string;
@@ -20,17 +22,18 @@ export interface VideoPlaylistClasses {
   sliderContainer?: string;
 }
 
-export interface VideoPlaylistItemClasses {
+export interface VideoPlaylistItemFooterClasses {
   listItem?: string;
   titleContainer?: string;
   truncate?: string;
   selection?: string;
 }
 
-export interface VideoPlaylistProps {
-  classes?: VideoPlaylistClasses;
+export interface VideoPlaylistFooterProps {
+  classes?: VideoPlaylistFooterClasses;
   trigger?: JSX.Element;
   active?: boolean;
+  selectedVideos: (arg: any) => void;
 }
 
 const defaultClasses = {
@@ -44,15 +47,16 @@ const defaultClasses = {
   selection: 'text-brand-main',
 };
 
-export const VideoPlaylist = ({
+export const VideoPlaylistFooter = ({
   classes,
   trigger,
   active,
-}: VideoPlaylistProps) => {
+  selectedVideos
+}: VideoPlaylistFooterProps) => {
   const { tw } = useHMSTheme();
   const styler = useMemo(
     () =>
-      hmsUiClassParserGenerator<VideoPlaylistClasses>({
+      hmsUiClassParserGenerator<VideoPlaylistFooterClasses>({
         tw,
         classes,
         defaultClasses,
@@ -60,9 +64,37 @@ export const VideoPlaylist = ({
       }),
     [],
   );
+
+  // const fileInputRef=useRef();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [selectedFiles, setSelectedFiles] = useState(new Array());
+  // const [progress, setProgress] = useState(0)
+  // selectedVideos = (files) => {}
   const hmsActions = useHMSActions();
   const playlist = useHMSStore(selectVideoPlaylist.list);
   const [open, setOpen] = useState(false);
+
+  const changeHandler = (event: any) => {
+    setSelectedFiles(event.target.files);
+    selectedVideos(event.target.files ? event.target.files : []);
+    console.log(event.target.files);
+  };
+
+  // const submitHandler = () => {
+  //   let formData = new FormData()
+
+  //   formData.append("file", selectedFiles[0])
+  //   axiosInstance.post("/upload_file", formData, {
+  //     headers: {
+  //       "Content-Type": "multipart/form-data",
+  //     },
+  //     onUploadProgress: data => {
+  //       //Set the progress value to show the progress bar
+  //       setProgress(Math.round((100 * data.loaded) / data.total))
+  //     },
+  //   })
+  // }
 
   return (
     <ContextMenu
@@ -115,6 +147,19 @@ export const VideoPlaylist = ({
               Playlist
             </Text>
             <Button
+              key="videoPlaylistUploadButton"
+              iconOnly
+              variant="no-fill"
+              iconSize="md"
+              shape="rectangle"
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
+            >
+              <UploadIcon />
+            </Button>
+            <input name="" type="file" ref={fileInputRef} onChange={changeHandler} multiple id="formId" hidden />
+            <Button
               key="videoPlaylist"
               iconOnly
               variant="no-fill"
@@ -143,6 +188,6 @@ export const VideoPlaylist = ({
           </div>
         </div>
       </ContextMenuItem>
-    </ContextMenu>
+    </ContextMenu >
   );
 };
