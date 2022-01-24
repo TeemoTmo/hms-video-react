@@ -158,7 +158,7 @@ export const VideoPlaylistFooter = ({
             >
               <UploadIcon />
             </Button>
-            <input name="" type="file" ref={fileInputRef} onChange={changeHandler} multiple id="formId" hidden />
+            <input name="" type="file" accept="video/mp4,video/x-m4v,video/*" ref={fileInputRef} onChange={changeHandler} id="formId" hidden />
             <Button
               key="videoPlaylist"
               iconOnly
